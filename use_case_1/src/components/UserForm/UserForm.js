@@ -1,5 +1,15 @@
 import { useState} from 'react';
+import { fetchApiData } from '../../api';
+
 import { InputField } from '../InputField';
+import {DataTable} from '../DataTable';
+
+import {
+    filterCountriesByName,
+    filterCountriesByPopulation,
+    sortCountriesByName,
+    paginateCountriesByCount
+} from '../helpers';
 
 import './UserForm.css';
 
@@ -11,6 +21,8 @@ export const UserForm = () => {
         limitOfRecords: '',
     });
     const [validationMessage, setValidationMessage] = useState('');
+
+    const [data, setData] = useState([]);
 
     const { countryName, population, sortBy, limitOfRecords } = inputValue;
 
@@ -29,20 +41,37 @@ export const UserForm = () => {
 
         if (input && !regexPattern.test(input)) {
             setValidationMessage("Input is not valid. Please enter 'ascend' or 'descend'.");
+            return false;
         } else {
             setValidationMessage('');
+            return true;
         }
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        validateSortInput();
+
+        const isValidSortingInput =  validateSortInput();
+        if (!isValidSortingInput) return;
+
+        const apiData = await fetchApiData();
+
+        const filteredDataByCountryName = countryName.length ? filterCountriesByName(countryName, apiData) : apiData;
+
+        const filteredDataByByPopulation = population ? filterCountriesByPopulation(population, filteredDataByCountryName) : filteredDataByCountryName;
+
+        const sortedData = sortBy ? sortCountriesByName(sortBy,filteredDataByByPopulation) : filteredDataByByPopulation;
+
+        const sortedDataByLimitCountriesCount = limitOfRecords ? paginateCountriesByCount(limitOfRecords, sortedData) : sortedData;
+
+        setData(sortedDataByLimitCountriesCount)
     };
 
     return (
-        <div className='form-container' onSubmit={handleSubmit}>
-            <form className='user-form' >
-                <InputField
+        <div className='container'>
+            <div className='form-container' onSubmit={handleSubmit}>
+                <form className='user-form' >
+                    <InputField
                     id='countryNameInput'
                     type='text'
                     value={countryName}
@@ -51,7 +80,7 @@ export const UserForm = () => {
                     name='countryName'
                     onChange={handleChange}
                 />
-                <InputField
+                    <InputField
                     id='populationCountInput'
                     type='number'
                     value={population}
@@ -60,7 +89,7 @@ export const UserForm = () => {
                     name='population'
                     onChange={handleChange}
                 />
-                <InputField
+                    <InputField
                     id='orderInput'
                     type='text'
                     value={sortBy}
@@ -70,7 +99,7 @@ export const UserForm = () => {
                     onChange={handleChange}
                     validationMessage={validationMessage}
                 />
-                <InputField
+                    <InputField
                     id='limitOfRecordInput'
                     type='number'
                     value={limitOfRecords}
@@ -79,10 +108,14 @@ export const UserForm = () => {
                     name='limitOfRecords'
                     onChange={handleChange}
                 />
-                <button type='submit' className='submit-button'>
+                    <button type='submit' className='submit-button'>
                     Submit
-                </button>
-            </form>
+                    </button>
+                </form>
+            </div>
+            {data.length > 1 && (
+                <DataTable data={data} />
+            )}
         </div>
     );
 };
