@@ -1,10 +1,10 @@
 import './App.css';
+import { UserForm } from  './components/UserForm';
 
-function App() {
-  return (
+const App = () => (
     <div className="App">
+      <UserForm />
     </div>
   );
-}
 
 export default App;
