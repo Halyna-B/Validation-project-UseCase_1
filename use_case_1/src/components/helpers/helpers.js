@@ -40,3 +40,11 @@ export const sortCountriesByName = (sortDirection, countries) => {
 
     return sortedCountries;
 };
+
+export const paginateCountriesByCount = (limit, countries) => {
+    if (limit <= 0) {
+        return [];
+    }
+
+    return countries.slice(0, limit);
+}
