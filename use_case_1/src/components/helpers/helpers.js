@@ -21,3 +21,22 @@ export const filterCountriesByPopulation = (maxPopulationMillions, countries) =>
 
     return filteredCountries;
 };
+
+export const sortCountriesByName = (sortDirection, countries) => {
+    const sortedCountries = [...countries];
+
+    sortedCountries.sort(( countryA, countryB ) => {
+        const nameOfCountryA  = countryA.name.common.toLowerCase();
+        const nameOfCountryB  = countryB.name.common.toLowerCase();
+
+        if (sortDirection === 'ascend') {
+            return nameOfCountryA.localeCompare(nameOfCountryB );
+        } else if (sortDirection === 'descend') {
+            return nameOfCountryB.localeCompare(nameOfCountryA );
+        } else {
+            return nameOfCountryA.localeCompare(nameOfCountryB );
+        }
+    });
+
+    return sortedCountries;
+};
