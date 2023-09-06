@@ -10,3 +10,14 @@ export const filterCountriesByName = (searchString, countries) => {
 
     return filteredCountries;
 };
+
+export const filterCountriesByPopulation = (maxPopulationMillions, countries) => {
+
+    const filteredCountries = countries.filter((country) => {
+        const populationMillions = country.population / 1e6;
+
+        return populationMillions < maxPopulationMillions;
+    });
+
+    return filteredCountries;
+};
